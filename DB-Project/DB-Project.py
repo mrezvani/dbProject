@@ -21,7 +21,7 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/hamed')
+@app.route('/test')
 def hello_world():
     db.users.insert({'name':{'firstname' : request.values['firstname'] , 'lastname' : request.values['lastname']}})
     return render_template('page2.html', firstname = request.values['firstname'], lastname = request.values['lastname'])
