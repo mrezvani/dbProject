@@ -74,9 +74,11 @@ def new_problem():
 def new_problem_submit():
     problem = request.values['problem']
     keys = request.values['keys'].split(" ")
+    answers = {'text' : "", 'comment' : [], 'point':0, 'creator': ''}
+    comment = []
+    creator = ''
 
-
-    db.problems.insert({'problem': problem, 'keys': keys})
+    db.problems.insert({'problem': problem, 'keys': keys, 'answers': answers, 'comment': comment, 'creator': creator})
 
     return "problem added"
 
