@@ -4,6 +4,7 @@ from flask.globals import request
 from flask.templating import render_template
 
 from pymongo import MongoClient
+from werkzeug.debug import console
 
 client = MongoClient()
 
@@ -82,9 +83,30 @@ def new_problem_submit():
 
     return "problem added"
 
+@app.route('/search-problem')
+def search_problem():
+    return render_template('search-problem.html')
+
+@app.route('/search-problem-submit')
+def search_problem_submit():
+    # keywordList = db.problems.find({'keys' : { '$in' : request.values['search'].split(" ")}})
+    #
+    # temp= "ali"
+    # for i in keywordList:
+    #     temp  = i['problem']
+    # db.problems.create_index({'keys': "text"})
+    db.problems.create_index('keys')
+
+    keywordList = db.problems.find({ '$text': { '$search': request.values['search']}},{'score': { '$meta': "textScore"}}).sort([('score', { '$meta': "textScore"})])
+
+    temp = "not"
+    for i in keywordList:
+        temp  = i['problem']
+        print(temp)
 
 
 if __name__ == '__main__':
+    # print(db.problems.ensureIndex())
     app.debug = True
     app.run()
 
