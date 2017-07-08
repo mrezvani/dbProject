@@ -95,14 +95,15 @@ def search_problem_submit():
     # for i in keywordList:
     #     temp  = i['problem']
     # db.problems.create_index({'keys': "text"})
-    db.problems.create_index('keys')
 
+    db.problems.create_index('keys')
     keywordList = db.problems.find({ '$text': { '$search': request.values['search']}},{'score': { '$meta': "textScore"}}).sort([('score', { '$meta': "textScore"})])
 
-    temp = "not"
+    temp = ""
     for i in keywordList:
-        temp  = i['problem']
-        print(temp)
+        temp  += i['problem'] + '<br>'
+
+    return temp
 
 
 if __name__ == '__main__':
