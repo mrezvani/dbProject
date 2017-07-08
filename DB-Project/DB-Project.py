@@ -1,8 +1,8 @@
 
-from flask import Flask
+from flask import make_response,Flask
 from flask.globals import request
 from flask.templating import render_template
-
+import pymongo
 from pymongo import MongoClient
 from werkzeug.debug import console
 
@@ -61,11 +61,16 @@ def login_submit():
 
     for i in person:
         if (request.values['password'] == i['password']):
-            return 'correct password'
+            resp = make_response(render_template('search-after-login.html', username = request.values['username']))
+            resp.set_cookie('username', request.values['username'])
+
+            return resp
         else:
             return 'uncorrect password'
 
     return 'incorrect username'
+
+
 
 @app.route('/new-problem')
 def new_problem():
@@ -75,9 +80,9 @@ def new_problem():
 def new_problem_submit():
     problem = request.values['problem']
     keys = request.values['keys'].split(" ")
-    answers = {'text' : "", 'comment' : [], 'point':0, 'creator': ''}
+    answers = [{'text' : "", 'comment' : [], 'point':0, 'creator': ''}]
     comment = []
-    creator = ''
+    creator = request.cookies['username']
 
     db.problems.insert({'problem': problem, 'keys': keys, 'answers': answers, 'comment': comment, 'creator': creator})
 
@@ -96,10 +101,11 @@ def search_problem_submit():
     #     temp  = i['problem']
     # db.problems.create_index({'keys': "text"})
 
-    db.problems.create_index('keys')
-    keywordList = db.problems.find({ '$text': { '$search': request.values['search']}},{'score': { '$meta': "textScore"}}).sort([('score', { '$meta': "textScore"})])
+    db.problems.create_index([('keys',pymongo.TEXT)])
+    keywordList = db.problems.find({'$text': {'$search': request.values['search']}}, {'score' : {'$meta' : 'textScore'}}).sort([('score' , {'$meta' : 'textScore'})])
 
-    temp = ""
+    temp=""
+
     for i in keywordList:
         temp  += i['problem'] + '<br>'
 
