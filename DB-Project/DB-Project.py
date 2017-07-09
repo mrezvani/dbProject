@@ -5,6 +5,7 @@ from flask.templating import render_template
 import pymongo
 from pymongo import MongoClient
 from werkzeug.debug import console
+from bson import ObjectId
 
 client = MongoClient()
 
@@ -16,6 +17,7 @@ db = client['DB-Project']
 
 collection = db.users
 
+db.problems.insert({'id' : 0})
 
 @app.route('/')
 def index():
@@ -78,13 +80,18 @@ def new_problem():
 
 @app.route('/new-problem-submit')
 def new_problem_submit():
+    idTemp = db.problems.find().sort([("id", pymongo.ASCENDING)])
+    for i in idTemp:
+        idTemp = i['id']
+    idTemp += 1
+    id = idTemp
     problem = request.values['problem']
     keys = request.values['keys'].split(" ")
-    answers = [{'text' : "", 'comment' : [], 'point':0, 'creator': ''}]
-    comment = []
+    answers = []
+    comments = []
     creator = request.cookies['username']
 
-    db.problems.insert({'problem': problem, 'keys': keys, 'answers': answers, 'comment': comment, 'creator': creator})
+    db.problems.insert({'problem': problem, 'keys': keys, 'answers': answers, 'comments': comments, 'creator': creator, 'id': id})
 
     return "problem added"
 
@@ -104,12 +111,109 @@ def search_problem_submit():
     db.problems.create_index([('keys',pymongo.TEXT)])
     keywordList = db.problems.find({'$text': {'$search': request.values['search']}}, {'score' : {'$meta' : 'textScore'}}).sort([('score' , {'$meta' : 'textScore'})])
 
-    temp=""
+    text = ""
+    i=0
+    text += "<a href=" + "search-problem>" + "go to search page" + "</a>"
+    for iterator in keywordList:
+        i += 1
+        text = text + "<a" + " href=/" + "full-problem/" + str(iterator['id']) + ">" + "<p name=" + "\"" + "P" + str(i) + "\"" + ">" + iterator['problem'] + "</p>" + "</a>"
 
-    for i in keywordList:
-        temp  += i['problem'] + '<br>'
+    return text
 
-    return temp
+@app.route('/full-problem/<i>')
+def full_problem(i):
+    # return str(i)
+    a = int(i)
+
+    question = db.problems.find({'id': a})
+
+    for j in question:
+        thisProblem = j['problem']
+        thisComments = j['comments']
+        thisCreator = j['creator']
+        thisAnswer = j['answers']
+
+    text = ""
+
+    text += "<a href=" + "/search-problem>" + "go to search page" + "</a>"
+
+    text += '<br><br>'
+
+    text += 'Problem : '
+    text += thisProblem
+
+    if (request.cookies['username'] == thisCreator):
+        text += " <a href=" + "/delete-problem/" + str(i) + ">" + "delete" + "</a>"
+
+
+    text += '<br><br>'
+
+    text += 'Comment:'
+
+    text += '<br><br>'
+
+    for iterator in thisComments:
+        text += str(iterator) + '<br>'
+
+    text += '<br><br>'
+    text += 'Answer:'
+
+    text += '<br><br>'
+
+    temp = "no answer"
+    j = 0
+    for iterator in thisAnswer:
+        if (j==0):
+            temp=""
+            j+=1
+        temp += str(iterator['text'])
+        if (iterator['creator'] == request.cookies['username']):
+            temp += " <a href=" + "/delete-answer>" + "delete" + "</a>" + '<br>'
+
+    text += temp
+
+
+
+    text += "<form action=/answer-submit/" + str(i) + ">" + "<input type=\"text\" name=\"answer\"> <br>" + "<input type=\"submit\" value=\"Submit\">" + "</form>"
+
+
+
+    return text
+
+@app.route('/delete-problem/<i>')
+def delete_problem(i):
+    a = int(i)
+
+    question = db.problems.remove({'id': a})
+
+    return render_template("search-problem.html")
+
+
+@app.route('/delete-answer/<i>')
+def delete_answer(i):
+    a = int(i)
+
+    question = db.problems.find({'id': a})
+
+    return "x"
+
+@app.route('/answer-submit/<i>')
+def answer_sumbit(i):
+    a = int(i)
+
+    question = db.problems.find({'id': a})
+
+    for i in question:
+        question = i
+
+    question['answers'].append({'text' : request.values['answer'], 'comments' : [], 'creator': request.cookies['username']})
+
+    db.problems.update({'id': a}, {'$set' : {'answers' : question['answers']}})
+
+
+
+    return "answer added"
+
 
 
 if __name__ == '__main__':
