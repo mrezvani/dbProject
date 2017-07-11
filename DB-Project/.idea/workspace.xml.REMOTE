@@ -2,16 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2c38c5e3-5d0e-4265-8d51-dee307f9064e" name="Default" comment="">
-<<<<<<< HEAD
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/DB-Project.py" afterPath="$PROJECT_DIR$/DB-Project.py" />
-=======
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/DB-Project.py" afterPath="$PROJECT_DIR$/DB-Project.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/index.html" afterPath="$PROJECT_DIR$/templates/index.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/login.html" afterPath="$PROJECT_DIR$/templates/login.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/new-problem.html" afterPath="$PROJECT_DIR$/templates/new-problem.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/search-problem.html" afterPath="$PROJECT_DIR$/templates/search-problem.html" />
->>>>>>> 49407ec2358462ad56a5a27de6f07de3e35e2b04
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -21,11 +17,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-<<<<<<< HEAD
-    <SUITE FILE_PATH="coverage/DB-Project$DB_Project.coverage" NAME="DB-Project Coverage Results" MODIFIED="1499782390983" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-=======
     <SUITE FILE_PATH="coverage/DB-Project$DB_Project.coverage" NAME="DB-Project Coverage Results" MODIFIED="1499784695472" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
->>>>>>> 49407ec2358462ad56a5a27de6f07de3e35e2b04
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
@@ -44,13 +36,8 @@
       <file leaf-file-name="DB-Project.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/DB-Project.py">
           <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
-            <state relative-caret-position="503">
-              <caret line="134" column="0" lean-forward="true" selection-start-line="134" selection-start-column="0" selection-end-line="134" selection-end-column="0" />
-=======
             <state relative-caret-position="194">
               <caret line="101" column="50" lean-forward="true" selection-start-line="101" selection-start-column="50" selection-end-line="101" selection-end-column="50" />
->>>>>>> 49407ec2358462ad56a5a27de6f07de3e35e2b04
               <folding>
                 <element signature="e#1#38#0" expanded="true" />
               </folding>
@@ -101,13 +88,8 @@
       <file leaf-file-name="new-problem.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/templates/new-problem.html">
           <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
-            <state relative-caret-position="457">
-              <caret line="20" column="7" lean-forward="true" selection-start-line="8" selection-start-column="0" selection-end-line="20" selection-end-column="7" />
-=======
             <state relative-caret-position="85">
               <caret line="8" column="34" lean-forward="false" selection-start-line="8" selection-start-column="34" selection-end-line="8" selection-end-column="34" />
->>>>>>> 49407ec2358462ad56a5a27de6f07de3e35e2b04
               <folding />
             </state>
           </provider>
@@ -123,8 +105,6 @@
           </provider>
         </entry>
       </file>
-<<<<<<< HEAD
-=======
       <file leaf-file-name="login.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/templates/login.html">
           <provider selected="true" editor-type-id="text-editor">
@@ -135,7 +115,6 @@
           </provider>
         </entry>
       </file>
->>>>>>> 49407ec2358462ad56a5a27de6f07de3e35e2b04
       <file leaf-file-name="sign-up.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/templates/sign-up.html">
           <provider selected="true" editor-type-id="text-editor">
@@ -159,20 +138,10 @@
     <findStrings>
       <find>search-problem</find>
       <find>sort</find>
-      <find>problem</find>
-      <find>delete</find>
-      <find>go to</find>
-      <find>update</find>
-      <find>edit-problem</find>
       <find>answer</find>
-<<<<<<< HEAD
-      <find>first</find>
-      <find>full</find>
-=======
       <find>login-sub</find>
       <find>new_problem_search()</find>
       <find>hello</find>
->>>>>>> 49407ec2358462ad56a5a27de6f07de3e35e2b04
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -188,7 +157,6 @@
         <option value="$PROJECT_DIR$/templates/search-problem.html" />
         <option value="$PROJECT_DIR$/templates/index.html" />
         <option value="$PROJECT_DIR$/templates/new-problem.html" />
-        <option value="$PROJECT_DIR$/templates/login.html" />
         <option value="$PROJECT_DIR$/DB-Project.py" />
       </list>
     </option>
@@ -842,9 +810,6 @@
         </state>
       </provider>
     </entry>
-<<<<<<< HEAD
-    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36-32/Lib/site-packages/pymongo/collection.py">
-=======
     <entry file="file://$PROJECT_DIR$/templates/full-problem.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="119">
@@ -854,7 +819,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/templates/page2.html">
->>>>>>> 49407ec2358462ad56a5a27de6f07de3e35e2b04
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -878,62 +842,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/full-problem.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="175">
-          <caret line="7" column="5" lean-forward="false" selection-start-line="7" selection-start-column="5" selection-end-line="7" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/templates/login.html">
       <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
-        <state relative-caret-position="250">
-          <caret line="13" column="0" lean-forward="false" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
-=======
         <state relative-caret-position="226">
           <caret line="15" column="8" lean-forward="true" selection-start-line="15" selection-start-column="8" selection-end-line="15" selection-end-column="8" />
->>>>>>> 49407ec2358462ad56a5a27de6f07de3e35e2b04
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/templates/index.html">
       <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
-        <state relative-caret-position="400">
-          <caret line="16" column="14" lean-forward="false" selection-start-line="16" selection-start-column="14" selection-end-line="16" selection-end-column="14" />
-=======
         <state relative-caret-position="153">
           <caret line="9" column="48" lean-forward="true" selection-start-line="9" selection-start-column="48" selection-end-line="9" selection-end-column="48" />
->>>>>>> 49407ec2358462ad56a5a27de6f07de3e35e2b04
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/templates/new-problem.html">
       <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
-        <state relative-caret-position="457">
-          <caret line="20" column="7" lean-forward="true" selection-start-line="8" selection-start-column="0" selection-end-line="20" selection-end-column="7" />
-=======
         <state relative-caret-position="85">
           <caret line="8" column="34" lean-forward="false" selection-start-line="8" selection-start-column="34" selection-end-line="8" selection-end-column="34" />
->>>>>>> 49407ec2358462ad56a5a27de6f07de3e35e2b04
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/DB-Project.py">
       <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
-        <state relative-caret-position="503">
-          <caret line="134" column="0" lean-forward="true" selection-start-line="134" selection-start-column="0" selection-end-line="134" selection-end-column="0" />
-=======
         <state relative-caret-position="194">
           <caret line="101" column="50" lean-forward="true" selection-start-line="101" selection-start-column="50" selection-end-line="101" selection-end-column="50" />
->>>>>>> 49407ec2358462ad56a5a27de6f07de3e35e2b04
           <folding>
             <element signature="e#1#38#0" expanded="true" />
           </folding>
