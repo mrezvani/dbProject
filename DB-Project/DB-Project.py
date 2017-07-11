@@ -119,11 +119,13 @@ def new_problem_submit():
 
 
     keys = request.values['keys'].split(" ")
-    answers = [{'id' : 0 , 'text' : 'first_id', 'creator' : 'admin', 'likedBy':[]}]
-    comments = [{'id' : 0 , 'text' : 'first_id', 'creator' : 'admin'}]
+    answers = [{'id' : 0 , 'text' : 'first_id', 'creator' : 'admin', 'likedBy':[], 'dislikeBy':[]}]
+    comments = [{'id' : 0 , 'text' : 'first_id', 'creator' : 'admin', 'likedBy':[], 'dislikeBy':[]}]
     creator = request.cookies['username']
+    likedBy = []
+    dislikedBy = []
 
-    db.problems.insert({'problem': problem, 'keys': keys, 'answers': answers, 'comments': comments, 'creator': creator, 'id': id})
+    db.problems.insert({'problem': problem, 'keys': keys, 'answers': answers, 'comments': comments, 'creator': creator, 'id': id, 'likedBy': likedBy, 'dislikedBy': dislikedBy })
 
     return "problem added"
 
@@ -166,7 +168,8 @@ def full_problem(i):
         thisComments = j['comments']
         thisCreator = j['creator']
         thisAnswer = j['answers']
-        # thisLikedBy = j['likedBy']
+        thisLikedBy = j['likedBy']
+        thisdisLikedBy = j['dislikedBy']
 
     text = ""
 
@@ -180,7 +183,12 @@ def full_problem(i):
     if (request.cookies['username'] == thisCreator):
         text += " <a href=" + "/delete-problem/" + str(i) + ">" + "delete" + "</a>"
         text += " <a href=" + "/edit-problem/" + str(i) + ">" + "edit" + "</a>"
-        text += " <a href=" + "/edit-problem/" + str(i) + ">" + "edit" + "</a>"
+        text += " <a href=" + "/like-problem/" + str(i) + ">" + "like" + "</a>"
+        text += " <a href=" + "/dislike-problem/" + str(i) + ">" + "dislike" + "</a>"
+        if request.cookies['username'] in thisLikedBy:
+            text += "   |  liked by you"
+        elif request.cookies['username'] in thisdisLikedBy:
+            text += "   |  disliked by you"
 
 
 
@@ -194,13 +202,19 @@ def full_problem(i):
     temp = "no comment"
     j = 0
     for iterator in thisComments:
-        if (j <= 1):
+        if (j == 0):
             temp = ""
             j += 1
         temp += str(iterator['text'])
         if (iterator['creator'] == request.cookies['username']):
             temp += " <a href=" + "/delete-comment/" + str(i) + "/" + str(iterator['id']) + ">" + "delete" + "</a>"
             temp += " <a href=" + "/edit-comment/" + str(i) + "/" + str(iterator['id']) + ">" + "edit" + "</a>"
+            temp += " <a href=" + "/like-comment/" + str(i) + "/" + str(iterator['id']) + ">" + "like" + "</a>"
+            temp += " <a href=" + "/dislike-comment/" + str(i) + "/" + str(iterator['id']) + ">" + "dislike" + "</a>"
+            if request.cookies['username'] in iterator['likedBy']:
+                temp += "   |  liked by you"
+            elif request.cookies['username'] in iterator['dislikedBy']:
+                temp += "   |  disliked by you"
         temp += '<br>'
 
     text += temp
@@ -217,13 +231,19 @@ def full_problem(i):
     temp = "no answer"
     j = 0
     for iterator in thisAnswer:
-        if (j <= 1 ):
+        if (j == 0):
             temp=""
             j += 1
         temp += str(iterator['text'])
         if (iterator['creator'] == request.cookies['username']):
             temp += " <a href=" + "/delete-answer/" + str(i) + "/" + str(iterator['id']) + ">" + "delete" + "</a>"
             temp += " <a href=" + "/edit-answer/" + str(i) + "/" + str(iterator['id']) + ">" + "edit" + "</a>"
+            temp += " <a href=" + "/like-answer/" + str(i) + "/" + str(iterator['id']) + ">" + "like" + "</a>"
+            temp += " <a href=" + "/dislike-answer/" + str(i) + "/" + str(iterator['id']) + ">" + "dislike" + "</a>"
+            if request.cookies['username'] in iterator['likedBy']:
+                temp += "   |  liked by you"
+            elif request.cookies['username'] in iterator['dislikedBy']:
+                temp += "   |  disliked by you"
         temp += '<br>'
 
     text += temp
@@ -236,11 +256,57 @@ def full_problem(i):
 
     return text
 
+
+@app.route('/like-problem/<i>')
+def like_problem(i):
+    a = int(i)
+
+    question = db.problems.find({'id': a})
+
+    for i in question:
+        question = i
+
+    liked = question['likedBy']
+    disliked = question['dislikedBy']
+
+    if request.cookies['username'] in disliked:
+        disliked.remove(request.cookies['username'])
+
+    if request.cookies['username'] not in liked:
+        liked.append(request.cookies['username'])
+
+    question = db.problems.update({'id': a}, {'$set': {'likedBy': liked, 'dislikedBy': disliked}})
+
+    return render_template("search-problem.html")
+
+@app.route('/dislike-problem/<i>')
+def dislike_problem(i):
+    a = int(i)
+
+    question = db.problems.find({'id': a})
+
+    for i in question:
+        question = i
+
+    disliked = question['dislikedBy']
+    liked = question['likedBy']
+
+    if request.cookies['username'] in liked:
+        liked.remove(request.cookies['username'])
+
+    if request.cookies['username'] not in disliked:
+        disliked.append(request.cookies['username'])
+
+    question = db.problems.update({'id': a}, {'$set': {'likedBy': liked, 'dislikedBy': disliked}})
+
+    return render_template("search-problem.html")
+
+
 @app.route('/delete-problem/<i>')
 def delete_problem(i):
     a = int(i)
 
-    question = db.problems.remove({'id': a})
+    db.problems.remove({'id': a})
 
     return render_template("search-problem.html")
 
@@ -276,9 +342,71 @@ def edit_problem(i):
 @app.route('/edit-problem-submit/<i>')
 def edit_problem_submit(i):
     a = int(i)
-    question = db.problems.update({'id': a}, {'$set': {'problem': request.values['problem'], 'keys': request.values['keys'].split(" ")}})
+
+    db.problems.update({'id': a}, {'$set': {'problem': request.values['problem'], 'keys': request.values['keys'].split(" ")}})
 
     return render_template("search-problem.html")
+
+@app.route('/like-answer/<i>/<j>')
+def like_answer(i, j):
+    a = int(i)
+    b = int(j)
+
+    question = db.problems.find({'id': a})
+
+    for i in question:
+        question = i
+
+    thisAnswer = question['answers']
+
+    thisAnswerArray = []
+    for iterator in thisAnswer:
+        if (iterator['id'] == b):
+            liked = iterator['likedBy']
+            disliked = iterator['dislikedBy']
+
+            if request.cookies['username'] in disliked:
+                disliked.remove(request.cookies['username'])
+
+            if request.cookies['username'] not in liked:
+                liked.append(request.cookies['username'])
+        thisAnswerArray.append(iterator)
+
+    db.problems.update({'id': a}, {'$set': {'answers': thisAnswerArray}})
+
+    return render_template("search-problem.html")
+
+@app.route('/dislike-answer/<i>/<j>')
+def dislike_answer(i, j):
+    a = int(i)
+    b = int(j)
+
+    question = db.problems.find({'id': a})
+
+    for i in question:
+        question = i
+
+    thisAnswer = question['answers']
+
+    thisAnswerArray = []
+    for iterator in thisAnswer:
+        if (iterator['id'] == b):
+            liked = iterator['likedBy']
+            disliked = iterator['dislikedBy']
+
+            if request.cookies['username'] not in disliked:
+                disliked.append(request.cookies['username'])
+
+            if request.cookies['username'] in liked:
+                liked.remove(request.cookies['username'])
+        thisAnswerArray.append(iterator)
+
+    db.problems.update({'id': a}, {'$set': {'answers': thisAnswerArray}})
+
+    return render_template("search-problem.html")
+
+
+
 
 @app.route('/edit-answer/<i>/<j>')
 def edit_answer(i, j):
@@ -349,6 +477,65 @@ def delete_answer(i, j):
     db.problems.update({'id': a}, {'$set': {'answers': thisAnswerArray}})
 
     return "answer deleted"
+
+@app.route('/like-comment/<i>/<j>')
+def like_comment(i, j):
+    a = int(i)
+    b = int(j)
+
+    question = db.problems.find({'id': a})
+
+    for i in question:
+        question = i
+
+    thisComment = question['comments']
+
+    thisCommentArray = []
+    for iterator in thisComment:
+        if (iterator['id'] == b):
+            liked = iterator['likedBy']
+            disliked = iterator['dislikedBy']
+
+            if request.cookies['username'] in disliked:
+                disliked.remove(request.cookies['username'])
+
+            if request.cookies['username'] not in liked:
+                liked.append(request.cookies['username'])
+        thisCommentArray.append(iterator)
+
+    question = db.problems.update({'id': a}, {'$set': {'comments': thisCommentArray}})
+
+    return render_template("search-problem.html")
+
+@app.route('/dislike-comment/<i>/<j>')
+def dislike_comment(i, j):
+    a = int(i)
+    b = int(j)
+
+    question = db.problems.find({'id': a})
+
+    for i in question:
+        question = i
+
+    thisComment = question['comments']
+
+    thisCommentArray = []
+    for iterator in thisComment:
+        if (iterator['id'] == b):
+            liked = iterator['likedBy']
+            disliked = iterator['dislikedBy']
+
+            if request.cookies['username'] not in disliked:
+                disliked.append(request.cookies['username'])
+
+            if request.cookies['username'] in liked:
+                liked.remove(request.cookies['username'])
+        thisCommentArray.append(iterator)
+
+    question = db.problems.update({'id': a}, {'$set': {'comments': thisCommentArray}})
+
+    return render_template("search-problem.html")
+
 
 @app.route('/edit-comment/<i>/<j>')
 def edit_comment(i, j):
@@ -436,19 +623,8 @@ def answer_sumbit(i):
 
     id = lastAnswer['id'] + 1
 
-    # idTemp = db.problems.find().sort([("answers.id", pymongo.ASCENDING)])
-    # for temp in idTemp:
-    #     idTemp = temp['answers']
-    #     break
-    # for i in idTemp:
-    #     idTemp = i['id']
-    #     return str(idTemp)
-    # idTemp += 1
-    # id = idTemp
 
-
-
-    question['answers'].append({'id' : id, 'text' : request.values['answer'], 'comments' : [], 'creator': request.cookies['username']})
+    question['answers'].append({'id' : id, 'text' : request.values['answer'], 'comments' : [], 'creator': request.cookies['username'], 'likedBy': [], 'dislikedBy': []})
 
     db.problems.update({'id': a}, {'$set' : {'answers' : question['answers']}})
 
@@ -474,7 +650,7 @@ def comment_sumbit(i):
 
 
 
-    question['comments'].append({'id' : id, 'text' : request.values['comment'], 'creator': request.cookies['username']})
+    question['comments'].append({'id' : id, 'text' : request.values['comment'], 'creator': request.cookies['username'], 'likedBy': [], 'dislikedBy': []})
 
     db.problems.update({'id': a}, {'$set' : {'comments' : question['comments']}})
 
