@@ -1,5 +1,5 @@
 
-from flask import make_response,Flask
+from flask import make_response,Flask,redirect, url_for
 from flask.globals import request
 from flask.templating import render_template
 import pymongo
@@ -263,8 +263,8 @@ def like_problem(i):
 
     question = db.problems.find({'id': a})
 
-    for i in question:
-        question = i
+    for temp in question:
+        question = temp
 
     liked = question['likedBy']
     disliked = question['dislikedBy']
@@ -277,7 +277,7 @@ def like_problem(i):
 
     question = db.problems.update({'id': a}, {'$set': {'likedBy': liked, 'dislikedBy': disliked}})
 
-    return render_template("search-problem.html")
+    return redirect(url_for('full_problem', i=i))
 
 @app.route('/dislike-problem/<i>')
 def dislike_problem(i):
@@ -285,8 +285,8 @@ def dislike_problem(i):
 
     question = db.problems.find({'id': a})
 
-    for i in question:
-        question = i
+    for temp in question:
+        question = temp
 
     disliked = question['dislikedBy']
     liked = question['likedBy']
@@ -299,7 +299,7 @@ def dislike_problem(i):
 
     question = db.problems.update({'id': a}, {'$set': {'likedBy': liked, 'dislikedBy': disliked}})
 
-    return render_template("search-problem.html")
+    return redirect(url_for('full_problem', i=i))
 
 
 @app.route('/delete-problem/<i>')
@@ -354,8 +354,8 @@ def like_answer(i, j):
 
     question = db.problems.find({'id': a})
 
-    for i in question:
-        question = i
+    for temp in question:
+        question = temp
 
     thisAnswer = question['answers']
 
@@ -374,7 +374,7 @@ def like_answer(i, j):
 
     db.problems.update({'id': a}, {'$set': {'answers': thisAnswerArray}})
 
-    return render_template("search-problem.html")
+    return redirect(url_for('full_problem', i=i))
 
 @app.route('/dislike-answer/<i>/<j>')
 def dislike_answer(i, j):
@@ -383,8 +383,8 @@ def dislike_answer(i, j):
 
     question = db.problems.find({'id': a})
 
-    for i in question:
-        question = i
+    for temp in question:
+        question = temp
 
     thisAnswer = question['answers']
 
@@ -403,7 +403,7 @@ def dislike_answer(i, j):
 
     db.problems.update({'id': a}, {'$set': {'answers': thisAnswerArray}})
 
-    return render_template("search-problem.html")
+    return redirect(url_for('full_problem', i=i))
 
 
 
@@ -485,8 +485,8 @@ def like_comment(i, j):
 
     question = db.problems.find({'id': a})
 
-    for i in question:
-        question = i
+    for temp in question:
+        question = temp
 
     thisComment = question['comments']
 
@@ -505,7 +505,7 @@ def like_comment(i, j):
 
     question = db.problems.update({'id': a}, {'$set': {'comments': thisCommentArray}})
 
-    return render_template("search-problem.html")
+    return redirect(url_for('full_problem', i=i))
 
 @app.route('/dislike-comment/<i>/<j>')
 def dislike_comment(i, j):
@@ -514,8 +514,8 @@ def dislike_comment(i, j):
 
     question = db.problems.find({'id': a})
 
-    for i in question:
-        question = i
+    for temp in question:
+        question = temp
 
     thisComment = question['comments']
 
@@ -534,7 +534,7 @@ def dislike_comment(i, j):
 
     question = db.problems.update({'id': a}, {'$set': {'comments': thisCommentArray}})
 
-    return render_template("search-problem.html")
+    return redirect(url_for('full_problem', i=i))
 
 
 @app.route('/edit-comment/<i>/<j>')
