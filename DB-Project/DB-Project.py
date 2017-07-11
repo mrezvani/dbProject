@@ -73,10 +73,6 @@ def login_submit():
 
 
 
-@app.route('/new-problem')
-def new_problem():
-    return render_template('new-problem.html')
-
 @app.route('/new-problem-search')
 def new_problem_search():
 
@@ -105,6 +101,10 @@ def new_problem_search():
      </form>""" % (request.values['problem'],request.values['keys'])
 
     return text
+
+@app.route('/new-problem')
+def new_problem():
+    return render_template('new-problem.html')
 
 
 @app.route('/new-problem-submit')
@@ -235,6 +235,18 @@ def full_problem(i):
 
 
     return text
+
+
+
+@app.route('/all-problem')
+def all_problem():
+    question = db.problems.find({})
+
+
+    return render_template('new-problem.html')
+
+
+
 
 @app.route('/delete-problem/<i>')
 def delete_problem(i):
@@ -486,8 +498,8 @@ def comment_sumbit(i):
 if __name__ == '__main__':
     # print(db.problems.ensureIndex())
     app.debug = True
-    # app.run()
-    app.run("0.0.0.0", 5000)
+    app.run()
+    # app.run("0.0.0.0", 5000)
 
 
  # 'firstname':request.values['firstname'] , 'lastname': request.values['lastname']
