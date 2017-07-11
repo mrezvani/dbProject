@@ -22,16 +22,9 @@ collection = db.users
 def index():
     return render_template('index.html')
 
-
-@app.route('/test1')
-def hello_world():
-    db.users.insert({'name':{'firstname' : request.values['firstname'] , 'lastname' : request.values['lastname']}})
-    return render_template('page2.html', firstname = request.values['firstname'], lastname = request.values['lastname'])
-
 @app.route('/sign-up')
 def sign_up():
     return render_template('sign-up.html')
-
 
 @app.route('/sign-up-submit')
 def sign_up_submit():
@@ -52,9 +45,11 @@ def sign_up_submit():
         db.users.insert({'name': name, 'username': username, 'email': email, 'password': password, 'point': point, 'image': image, 'favorite': favorite})
         return "OK"
 
+##################################################################
+
 @app.route('/login')
 def login():
-    return render_template('login.html')
+    return render_template('login.html', message="Welcome")
 
 @app.route('/login-submit')
 def login_submit():
@@ -67,11 +62,10 @@ def login_submit():
 
             return resp
         else:
-            return 'uncorrect password'
+            return render_template('login.html', message='Incorrect password')
+    return render_template('login.html', message='incorrect username')
 
-    return 'incorrect username'
-
-
+##################################################################
 
 @app.route('/new-problem')
 def new_problem():
@@ -129,20 +123,14 @@ def new_problem_submit():
 
     return "problem added"
 
+##################################################################
+
 @app.route('/search-problem')
 def search_problem():
     return render_template('search-problem.html')
 
 @app.route('/search-problem-submit')
 def search_problem_submit():
-
-
-    # keywordList = db.problems.find({'keys' : { '$in' : request.values['search'].split(" ")}})
-    #
-    # temp= "ali"
-    # for i in keywordList:
-    #     temp  = i['problem']
-    # db.problems.create_index({'keys': "text"})
 
     db.problems.create_index([('keys',pymongo.TEXT)])
     keywordList = db.problems.find({'$text': {'$search': request.values['search']}}, {'score' : {'$meta' : 'textScore'}}).sort([('score' , {'$meta' : 'textScore'})])
@@ -155,6 +143,8 @@ def search_problem_submit():
         text = text + "<a" + " href=/" + "full-problem/" + str(iterator['id']) + ">" + "<p name=" + "\"" + "P" + str(i) + "\"" + ">" + iterator['problem'] + "</p>" + "</a>"
 
     return text
+
+##################################################################
 
 @app.route('/full-problem/<i>')
 def full_problem(i):
@@ -273,6 +263,7 @@ def full_problem(i):
 
     return text
 
+##################################################################
 
 @app.route('/edit-answer-comment/<i>/<j>/<k>')
 def edit_answer_comment(i,j,k):
@@ -316,7 +307,7 @@ def edit_answer_comment_submit(i,j,k):
                 if (iterator2['id'] == c):
                     iterator2['text'] = request.values['comment']
                     thisCommentArray.append(iterator2)
-                    
+
             iterator['comments'] = thisCommentArray
         thisAnswerArray.append(iterator)
 
@@ -387,7 +378,7 @@ def comment_answer_submit(i,j):
 
     return redirect(url_for('full_problem', i=i))
 
-
+##################################################################
 
 @app.route('/like-problem/<i>')
 def like_problem(i):
@@ -478,6 +469,8 @@ def edit_problem_submit(i):
     db.problems.update({'id': a}, {'$set': {'problem': request.values['problem'], 'keys': request.values['keys'].split(" ")}})
 
     return render_template("search-problem.html")
+
+##################################################################
 
 @app.route('/like-answer/<i>/<j>')
 def like_answer(i, j):
@@ -636,6 +629,8 @@ def delete_answer(i, j):
 
     return redirect(url_for('full_problem', i=i))
 
+##################################################################
+
 @app.route('/like-comment/<i>/<j>')
 def like_comment(i, j):
     a = int(i)
@@ -791,6 +786,7 @@ def comment_sumbit(i):
 
     return redirect(url_for('full_problem', i=i))
 
+##################################################################
 
 if __name__ == '__main__':
     # print(db.problems.ensureIndex())
@@ -798,5 +794,3 @@ if __name__ == '__main__':
     # app.run()
     app.run("0.0.0.0", 5000)
 
-
- # 'firstname':request.values['firstname'] , 'lastname': request.values['lastname']
