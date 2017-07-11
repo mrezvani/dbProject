@@ -87,7 +87,7 @@ def new_problem_submit():
     problem = request.values['problem']
     keys = request.values['keys'].split(" ")
     answers = [{'id' : 0 , 'text' : 'first_id', 'creator' : 'admin'}]
-    comments = []
+    comments = [{'id' : 0 , 'text' : 'first_id', 'creator' : 'admin'}]
     creator = request.cookies['username']
 
     db.problems.insert({'problem': problem, 'keys': keys, 'answers': answers, 'comments': comments, 'creator': creator, 'id': id})
@@ -151,8 +151,21 @@ def full_problem(i):
 
     text += '<br><br>'
 
+
+    temp = "no comment"
+    j = 0
     for iterator in thisComments:
-        text += str(iterator) + '<br>'
+        if (j <= 1):
+            temp = ""
+            j += 1
+        temp += str(iterator['text'])
+        if (iterator['creator'] == request.cookies['username']):
+            temp += " <a href=" + "/delete-comment/" + str(i) + "/" + str(iterator['id']) + ">" + "delete" + "</a>"
+        temp += '<br>'
+
+    text += temp
+
+    text += "<form action=/comment-submit/" + str(i) + ">" + "<input type=\"text\" name=\"comment\"> <br>" + "<input type=\"submit\" value=\"Submit\">" + "</form>"
 
     text += '<br><br>'
     text += 'Answer:'
@@ -211,6 +224,28 @@ def delete_answer(i, j):
 
     return "answer deleted"
 
+
+@app.route('/delete-comment/<i>/<j>')
+def delete_comment(i, j):
+    a = int(i)
+    b = int(j)
+    question = db.problems.find({'id': a})
+
+    for i in question:
+        question = i
+
+        thisComment = question['comments']
+
+    thisCommentArray = []
+    for iterator in thisComment:
+        if (iterator['id'] != b):
+            thisCommentArray.append(iterator)
+
+    db.problems.update({'id': a}, {'$set': {'comments': thisCommentArray}})
+
+    return "comment deleted"
+
+
 @app.route('/answer-submit/<i>')
 def answer_sumbit(i):
     a = int(i)
@@ -247,11 +282,36 @@ def answer_sumbit(i):
     return "answer added"
 
 
+@app.route('/comment-submit/<i>')
+def comment_sumbit(i):
+    a = int(i)
+
+    question = db.problems.find({'id': a})
+
+    for i in question:
+        question = i
+
+
+    for j in question['comments']:
+        lastComment = j
+
+    id = lastComment['id'] + 1
+
+
+
+    question['comments'].append({'id' : id, 'text' : request.values['comment'], 'creator': request.cookies['username']})
+
+    db.problems.update({'id': a}, {'$set' : {'comments' : question['comments']}})
+
+
+
+    return "comment added"
+
 
 if __name__ == '__main__':
     # print(db.problems.ensureIndex())
     app.debug = True
-    app.run()
+    app.run("0.0.0.0", 5000)
 
 
  # 'firstname':request.values['firstname'] , 'lastname': request.values['lastname']
