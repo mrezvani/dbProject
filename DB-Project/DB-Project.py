@@ -82,6 +82,7 @@ def new_problem_search():
 
 
     text = ""
+    text += "<a href=" + "/search-problem>" + "go to search page" + "</a>"
     text += "your question is: <br>"
     text += '<p name="problemtitle">' + request.values['problem'] + '</p>'
     text += "<br><br><br>"
@@ -93,8 +94,7 @@ def new_problem_search():
 
     text += "Did you mean...? <br><br>"
     i=0
-    # goto dashboard
-    text += "<a href=" + "/search-problem>" + "go to search page" + "</a>"
+
     for iterator in keywordList:
         i += 1
         text +=  "<a" + " href=/" + "full-problem/" + str(iterator['id']) + ">" + "<p name=" + "\"" + "P" + str(i) + "\"" + ">" + iterator['problem'] + "</p>" + "</a>"
