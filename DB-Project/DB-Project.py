@@ -119,8 +119,8 @@ def new_problem_submit():
 
 
     keys = request.values['keys'].split(" ")
-    answers = [{'id' : 0 , 'text' : 'first_id', 'creator' : 'admin', 'likedBy':[], 'dislikeBy':[]}]
-    comments = [{'id' : 0 , 'text' : 'first_id', 'creator' : 'admin', 'likedBy':[], 'dislikeBy':[]}]
+    answers = [{'id' : 0 , 'text' : 'no answer', 'creator' : 'admin', 'likedBy':[], 'dislikedBy':[], 'comments':[{'id' : 0 , 'text' : 'no comment for answer', 'creator' : 'admin'}]}]
+    comments = [{'id' : 0 , 'text' : 'no comment', 'creator' : 'admin', 'likedBy':[], 'dislikedBy':[]}]
     creator = request.cookies['username']
     likedBy = []
     dislikedBy = []
@@ -199,10 +199,10 @@ def full_problem(i):
     text += '<br><br>'
 
 
-    temp = "no comment"
+    temp = ""
     j = 0
     for iterator in thisComments:
-        if (j == 0):
+        if (j <= 1):
             temp = ""
             j += 1
         temp += str(iterator['text'])
@@ -228,10 +228,10 @@ def full_problem(i):
 
     text += '<br><br>'
 
-    temp = "no answer"
+    temp = ""
     j = 0
     for iterator in thisAnswer:
-        if (j == 0):
+        if (j <= 1):
             temp=""
             j += 1
         temp += str(iterator['text'])
@@ -245,6 +245,23 @@ def full_problem(i):
             elif request.cookies['username'] in iterator['dislikedBy']:
                 temp += "   |  disliked by you"
         temp += '<br>'
+        temp2 = ""
+        k = 0
+        if j != 1:
+            for commentIterator in iterator['comments']:
+                if (k <= 1):
+                    temp2 = ""
+                    k += 1
+                temp2 += str(commentIterator['text'])
+                if (commentIterator['creator'] == request.cookies['username']):
+                    temp2 += " <a href=" + "/delete-answer-comment/" + str(i) + "/" + str(iterator['id']) + "/" + str(commentIterator['id']) + ">" + "delete" + "</a>"
+                    temp2 += " <a href=" + "/edit-answer-comment/" + str(i) + "/" + str(iterator['id']) + "/" + str(commentIterator['id']) + ">" + "edit" + "</a>"
+
+                temp2 += '<br>'
+            temp += temp2
+            temp += " <a href=" + "/comment-answer/" + str(i) + "/" + str(iterator['id']) + ">" + "comment for answer" + "</a>"
+
+            temp += "<br><br>"
 
     text += temp
 
@@ -255,6 +272,121 @@ def full_problem(i):
 
 
     return text
+
+
+@app.route('/edit-answer-comment/<i>/<j>/<k>')
+def edit_answer_comment(i,j,k):
+    a = int(i)
+    b = int(j)
+    c = int(k)
+
+    question = db.problems.find({'id': a})
+
+    for temp in question:
+        question = temp
+    thisAnswer = question['answers']
+
+    for iterator in thisAnswer:
+        if (iterator['id'] == b):
+            for iterator2 in iterator['comments']:
+                if (iterator2['id'] == c):
+                    result = iterator2['text']
+
+
+    return render_template('edit-answer-comment-submit.html', i=i, j=j, k=k, oldComment=result)
+
+@app.route('/edit-answer-comment-submit/<i>/<j>/<k>')
+def edit_answer_comment_submit(i,j,k):
+    a = int(i)
+    b = int(j)
+    c = int(k)
+
+    question = db.problems.find({'id': a})
+
+    for temp in question:
+        question = temp
+    thisAnswer = question['answers']
+    thisComment = request.values['comment']
+
+    thisAnswerArray = []
+    thisCommentArray = []
+    for iterator in thisAnswer:
+        if (iterator['id'] == b):
+            for iterator2 in iterator['comments']:
+                if (iterator2['id'] == c):
+                    iterator2['text'] = request.values['comment']
+                    thisCommentArray.append(iterator2)
+                    
+            iterator['comments'] = thisCommentArray
+        thisAnswerArray.append(iterator)
+
+    db.problems.update({'id': a}, {'$set': {'answers': thisAnswerArray}})
+
+    return redirect(url_for('full_problem', i=i))
+
+
+@app.route('/delete-answer-comment/<i>/<j>/<k>')
+def delete_answer_comment(i,j,k):
+    a = int(i)
+    b = int(j)
+    c = int(k)
+
+    question = db.problems.find({'id': a})
+
+    for temp in question:
+        question = temp
+    thisAnswer = question['answers']
+
+    thisAnswerArray = []
+    thisCommentArray = []
+    for iterator in thisAnswer:
+        if (iterator['id'] == b):
+            for iterator2 in iterator['comments']:
+                if (iterator2['id'] != c):
+                    thisCommentArray.append(iterator2)
+            iterator['comments'] = thisCommentArray
+        thisAnswerArray.append(iterator)
+
+    db.problems.update({'id': a}, {'$set': {'answers': thisAnswerArray}})
+
+    return redirect(url_for('full_problem', i=i))
+
+
+@app.route('/comment-answer/<i>/<j>')
+def comment_answer(i,j):
+
+
+    return render_template('comment-answer.html', i=i, j=j)
+
+@app.route('/comment-answer-submit/<i>/<j>')
+def comment_answer_submit(i,j):
+    a = int(i)
+    b = int(j)
+
+    question = db.problems.find({'id': a})
+
+    for temp in question:
+        question = temp
+    thisAnswer = question['answers']
+    thisComment = request.values['comment']
+
+
+    thisAnswerArray = []
+    thisCommentArray = []
+    for iterator in thisAnswer:
+        if (iterator['id'] == b):
+            for iterator2 in iterator['comments']:
+                lastComment = iterator2['id']
+
+            iterator['comments'].append({'id' : lastComment+1, 'text': thisComment, 'creator': request.cookies['username']})
+        thisAnswerArray.append(iterator)
+
+
+
+    db.problems.update({'id': a}, {'$set': {'answers': thisAnswerArray}})
+
+    return redirect(url_for('full_problem', i=i))
+
 
 
 @app.route('/like-problem/<i>')
@@ -458,14 +590,40 @@ def edit_answer_submit(i, j):
     return "answer edited"
 
 
+@app.route('/answer-submit/<i>')
+def answer_sumbit(i):
+    a = int(i)
+
+    question = db.problems.find({'id': a})
+
+    for temp1 in question:
+        question = temp1
+
+
+    for temp2 in question['answers']:
+        lastAnswer = temp2
+
+    id = lastAnswer['id'] + 1
+
+
+    question['answers'].append({'id' : id, 'text' : request.values['answer'], 'comments' : [], 'creator': request.cookies['username'], 'likedBy': [], 'dislikedBy': [], 'comments':[{'id': 0, 'text': 'no comment for answer', 'creator': 'admin'}]})
+
+    db.problems.update({'id': a}, {'$set' : {'answers' : question['answers']}})
+
+
+
+    return redirect(url_for('full_problem', i=i))
+
+
+
 @app.route('/delete-answer/<i>/<j>')
 def delete_answer(i, j):
     a = int(i)
     b = int(j)
     question = db.problems.find({'id': a})
 
-    for i in question:
-        question = i
+    for temp in question:
+        question = temp
 
     thisAnswer = question['answers']
 
@@ -476,7 +634,7 @@ def delete_answer(i, j):
 
     db.problems.update({'id': a}, {'$set': {'answers': thisAnswerArray}})
 
-    return "answer deleted"
+    return redirect(url_for('full_problem', i=i))
 
 @app.route('/like-comment/<i>/<j>')
 def like_comment(i, j):
@@ -593,8 +751,8 @@ def delete_comment(i, j):
     b = int(j)
     question = db.problems.find({'id': a})
 
-    for i in question:
-        question = i
+    for temp in question:
+        question = temp
 
         thisComment = question['comments']
 
@@ -605,32 +763,9 @@ def delete_comment(i, j):
 
     db.problems.update({'id': a}, {'$set': {'comments': thisCommentArray}})
 
-    return "comment deleted"
+    return redirect(url_for('full_problem', i=i))
 
 
-@app.route('/answer-submit/<i>')
-def answer_sumbit(i):
-    a = int(i)
-
-    question = db.problems.find({'id': a})
-
-    for i in question:
-        question = i
-
-
-    for j in question['answers']:
-        lastAnswer = j
-
-    id = lastAnswer['id'] + 1
-
-
-    question['answers'].append({'id' : id, 'text' : request.values['answer'], 'comments' : [], 'creator': request.cookies['username'], 'likedBy': [], 'dislikedBy': []})
-
-    db.problems.update({'id': a}, {'$set' : {'answers' : question['answers']}})
-
-
-
-    return "answer added"
 
 
 @app.route('/comment-submit/<i>')
@@ -639,12 +774,12 @@ def comment_sumbit(i):
 
     question = db.problems.find({'id': a})
 
-    for i in question:
-        question = i
+    for temp in question:
+        question = temp
 
 
-    for j in question['comments']:
-        lastComment = j
+    for temp2 in question['comments']:
+        lastComment = temp2
 
     id = lastComment['id'] + 1
 
@@ -654,9 +789,7 @@ def comment_sumbit(i):
 
     db.problems.update({'id': a}, {'$set' : {'comments' : question['comments']}})
 
-
-
-    return "comment added"
+    return redirect(url_for('full_problem', i=i))
 
 
 if __name__ == '__main__':
