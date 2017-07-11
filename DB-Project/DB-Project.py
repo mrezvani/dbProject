@@ -89,7 +89,7 @@ def new_problem_search():
 
 
     db.problems.create_index([('keys',pymongo.TEXT)])
-    keywordList = db.problems.find({'$text': {'$search': request.values['problem']}}, {'score' : {'$meta' : 'textScore'}}).sort([('score' , {'$meta' : 'textScore'})])
+    keywordList = db.problems.find({'$text': {'$search': request.values['keys']}}, {'score' : {'$meta' : 'textScore'}}).sort([('score' , {'$meta' : 'textScore'})])
 
 
     text += "Did you mean...? <br><br>"
@@ -101,7 +101,7 @@ def new_problem_search():
     text += """<form action="/new-problem-submit">
     <input type="hidden" name="problem"  value=%s>
     <input type="hidden" name="keys"  value=%s>
-     "<input type="submit" value="No">
+     <input type="submit" value="No">
      </form>""" % (request.values['problem'],request.values['keys'])
 
     return text
@@ -119,7 +119,7 @@ def new_problem_submit():
 
 
     keys = request.values['keys'].split(" ")
-    answers = [{'id' : 0 , 'text' : 'first_id', 'creator' : 'admin'}]
+    answers = [{'id' : 0 , 'text' : 'first_id', 'creator' : 'admin', 'likedBy':[]}]
     comments = [{'id' : 0 , 'text' : 'first_id', 'creator' : 'admin'}]
     creator = request.cookies['username']
 
@@ -166,6 +166,7 @@ def full_problem(i):
         thisComments = j['comments']
         thisCreator = j['creator']
         thisAnswer = j['answers']
+        # thisLikedBy = j['likedBy']
 
     text = ""
 
@@ -178,6 +179,9 @@ def full_problem(i):
 
     if (request.cookies['username'] == thisCreator):
         text += " <a href=" + "/delete-problem/" + str(i) + ">" + "delete" + "</a>"
+        text += " <a href=" + "/edit-problem/" + str(i) + ">" + "edit" + "</a>"
+        text += " <a href=" + "/edit-problem/" + str(i) + ">" + "edit" + "</a>"
+
 
 
     text += '<br><br>'
@@ -196,6 +200,7 @@ def full_problem(i):
         temp += str(iterator['text'])
         if (iterator['creator'] == request.cookies['username']):
             temp += " <a href=" + "/delete-comment/" + str(i) + "/" + str(iterator['id']) + ">" + "delete" + "</a>"
+            temp += " <a href=" + "/edit-comment/" + str(i) + "/" + str(iterator['id']) + ">" + "edit" + "</a>"
         temp += '<br>'
 
     text += temp
@@ -218,6 +223,7 @@ def full_problem(i):
         temp += str(iterator['text'])
         if (iterator['creator'] == request.cookies['username']):
             temp += " <a href=" + "/delete-answer/" + str(i) + "/" + str(iterator['id']) + ">" + "delete" + "</a>"
+            temp += " <a href=" + "/edit-answer/" + str(i) + "/" + str(iterator['id']) + ">" + "edit" + "</a>"
         temp += '<br>'
 
     text += temp
@@ -237,6 +243,91 @@ def delete_problem(i):
     question = db.problems.remove({'id': a})
 
     return render_template("search-problem.html")
+
+@app.route('/edit-problem/<i>')
+def edit_problem(i):
+    a = int(i)
+
+    question = db.problems.find({'id': a})
+
+    for i in question:
+        question = i
+
+    keys = ""
+    for i in question['keys']:
+        keys += i + " "
+
+
+    return """<form action="/edit-problem-submit/%d">
+
+                Problem: <br>
+                <textarea rows="5" cols="50" name="problem">%s</textarea>
+                <br>
+
+                Keys: <br>
+                <textarea rows="5" cols="50" name="keys">%s</textarea>
+
+                <br><br>
+                <input type="submit" value="Submit">
+
+            </form>""" % (a, question['problem'], keys)
+
+
+@app.route('/edit-problem-submit/<i>')
+def edit_problem_submit(i):
+    a = int(i)
+    question = db.problems.update({'id': a}, {'$set': {'problem': request.values['problem'], 'keys': request.values['keys'].split(" ")}})
+
+    return render_template("search-problem.html")
+
+@app.route('/edit-answer/<i>/<j>')
+def edit_answer(i, j):
+    a = int(i)
+    b = int(j)
+    question = db.problems.find({'id': a})
+
+    for i in question:
+        question = i
+
+    thisAnswer = question['answers']
+
+    thisAnswerArray = []
+    for iterator in thisAnswer:
+        if (iterator['id'] == b):
+            thisAnswer = iterator
+
+    return """<form action="/edit-answer-submit/%d/%d">
+
+                    Edit answer: <br>
+                    <textarea rows="5" cols="50" name="answer">%s</textarea>
+                    <br>
+
+                    <br><br>
+                    <input type="submit" value="Submit">
+
+                </form>""" % (a, b, thisAnswer['text'])
+
+@app.route('/edit-answer-submit/<i>/<j>')
+def edit_answer_submit(i, j):
+    a = int(i)
+    b = int(j)
+    question = db.problems.find({'id': a})
+
+    for i in question:
+        question = i
+
+    thisAnswer = question['answers']
+
+    thisAnswerArray = []
+    for iterator in thisAnswer:
+        if (iterator['id'] != b):
+            thisAnswerArray.append(iterator)
+        else:
+            iterator['text'] = request.values['answer']
+            thisAnswerArray.append(iterator)
+
+    db.problems.update({'id': a}, {'$set': {'answers': thisAnswerArray}})
+    return "answer edited"
 
 
 @app.route('/delete-answer/<i>/<j>')
@@ -258,6 +349,55 @@ def delete_answer(i, j):
     db.problems.update({'id': a}, {'$set': {'answers': thisAnswerArray}})
 
     return "answer deleted"
+
+@app.route('/edit-comment/<i>/<j>')
+def edit_comment(i, j):
+    a = int(i)
+    b = int(j)
+    question = db.problems.find({'id': a})
+
+    for i in question:
+        question = i
+
+    thisComment = question['comments']
+
+    thisCommentArray = []
+    for iterator in thisComment:
+        if (iterator['id'] == b):
+            thisComment = iterator
+
+    return """<form action="/edit-comment-submit/%d/%d">
+
+                    Edit comment: <br>
+                    <textarea rows="5" cols="50" name="comment">%s</textarea>
+                    <br>
+
+                    <br><br>
+                    <input type="submit" value="Submit">
+
+                </form>""" % (a, b, thisComment['text'])
+
+@app.route('/edit-comment-submit/<i>/<j>')
+def edit_comment_submit(i, j):
+    a = int(i)
+    b = int(j)
+    question = db.problems.find({'id': a})
+
+    for i in question:
+        question = i
+
+    thisComment = question['comments']
+
+    thisCommentArray = []
+    for iterator in thisComment:
+        if (iterator['id'] != b):
+            thisCommentArray.append(iterator)
+        else:
+            iterator['text'] = request.values['comment']
+            thisCommentArray.append(iterator)
+
+    db.problems.update({'id': a}, {'$set': {'comments': thisCommentArray}})
+    return "comment edited"
 
 
 @app.route('/delete-comment/<i>/<j>')
@@ -346,8 +486,8 @@ def comment_sumbit(i):
 if __name__ == '__main__':
     # print(db.problems.ensureIndex())
     app.debug = True
-    app.run()
-    #app.run("0.0.0.0", 5000)
+    # app.run()
+    app.run("0.0.0.0", 5000)
 
 
  # 'firstname':request.values['firstname'] , 'lastname': request.values['lastname']
