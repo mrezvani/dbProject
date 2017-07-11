@@ -88,7 +88,7 @@ def new_problem_search():
 
 
     db.problems.create_index([('keys',pymongo.TEXT)])
-    keywordList = db.problems.find({'$text': {'$search': request.values['problem']}}, {'score' : {'$meta' : 'textScore'}}).sort([('score' , {'$meta' : 'textScore'})])
+    keywordList = db.problems.find({'$text': {'$search': request.values['keys']}}, {'score' : {'$meta' : 'textScore'}}).sort([('score' , {'$meta' : 'textScore'})])
 
 
     text += "Did you mean...? <br><br>"
@@ -101,7 +101,7 @@ def new_problem_search():
     text += """<form action="/new-problem-submit">
     <input type="hidden" name="problem"  value=%s>
     <input type="hidden" name="keys"  value=%s>
-     "<input type="submit" value="No">
+     <input type="submit" value="No">
      </form>""" % (request.values['problem'],request.values['keys'])
 
     return text
@@ -486,8 +486,8 @@ def comment_sumbit(i):
 if __name__ == '__main__':
     # print(db.problems.ensureIndex())
     app.debug = True
-    app.run()
-    #app.run("0.0.0.0", 5000)
+    # app.run()
+    app.run("0.0.0.0", 5000)
 
 
  # 'firstname':request.values['firstname'] , 'lastname': request.values['lastname']
