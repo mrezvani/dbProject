@@ -77,14 +77,47 @@ def login_submit():
 def new_problem():
     return render_template('new-problem.html')
 
+@app.route('/new-problem-search')
+def new_problem_search():
+
+
+    text = ""
+    text += "your question is: <br>"
+    text += '<p name="problemtitle">' + request.values['problem'] + '</p>'
+    text += "<br><br><br>"
+
+
+    db.problems.create_index([('keys',pymongo.TEXT)])
+    keywordList = db.problems.find({'$text': {'$search': request.values['problem']}}, {'score' : {'$meta' : 'textScore'}}).sort([('score' , {'$meta' : 'textScore'})])
+
+
+    text += "Did you mean...? <br><br>"
+    i=0
+    # goto dashboard
+    text += "<a href=" + "/search-problem>" + "go to search page" + "</a>"
+    for iterator in keywordList:
+        i += 1
+        text +=  "<a" + " href=/" + "full-problem/" + str(iterator['id']) + ">" + "<p name=" + "\"" + "P" + str(i) + "\"" + ">" + iterator['problem'] + "</p>" + "</a>"
+    text += """<form action="/new-problem-submit">
+    <input type="hidden" name="problem"  value=%s>
+    <input type="hidden" name="keys"  value=%s>
+     "<input type="submit" value="No">
+     </form>""" % (request.values['problem'],request.values['keys'])
+
+    return text
+
+
 @app.route('/new-problem-submit')
 def new_problem_submit():
+
     idTemp = db.problems.find().sort([("id", pymongo.ASCENDING)])
     for i in idTemp:
         idTemp = i['id']
     idTemp += 1
     id = idTemp
     problem = request.values['problem']
+
+
     keys = request.values['keys'].split(" ")
     answers = [{'id' : 0 , 'text' : 'first_id', 'creator' : 'admin'}]
     comments = [{'id' : 0 , 'text' : 'first_id', 'creator' : 'admin'}]
@@ -100,6 +133,8 @@ def search_problem():
 
 @app.route('/search-problem-submit')
 def search_problem_submit():
+
+
     # keywordList = db.problems.find({'keys' : { '$in' : request.values['search'].split(" ")}})
     #
     # temp= "ali"
@@ -311,7 +346,8 @@ def comment_sumbit(i):
 if __name__ == '__main__':
     # print(db.problems.ensureIndex())
     app.debug = True
-    app.run("0.0.0.0", 5000)
+    app.run()
+    #app.run("0.0.0.0", 5000)
 
 
  # 'firstname':request.values['firstname'] , 'lastname': request.values['lastname']
