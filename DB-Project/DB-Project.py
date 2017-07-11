@@ -17,7 +17,6 @@ db = client['DB-Project']
 
 collection = db.users
 
-db.problems.insert({'id' : 0})
 
 @app.route('/')
 def index():
@@ -87,7 +86,7 @@ def new_problem_submit():
     id = idTemp
     problem = request.values['problem']
     keys = request.values['keys'].split(" ")
-    answers = []
+    answers = [{'id' : 0 , 'text' : 'first_id', 'creator' : 'admin'}]
     comments = []
     creator = request.cookies['username']
 
@@ -158,17 +157,20 @@ def full_problem(i):
     text += '<br><br>'
     text += 'Answer:'
 
+
+
     text += '<br><br>'
 
     temp = "no answer"
     j = 0
     for iterator in thisAnswer:
-        if (j==0):
+        if (j <= 1 ):
             temp=""
-            j+=1
+            j += 1
         temp += str(iterator['text'])
         if (iterator['creator'] == request.cookies['username']):
-            temp += " <a href=" + "/delete-answer>" + "delete" + "</a>" + '<br>'
+            temp += " <a href=" + "/delete-answer/" + str(i) + "/" + str(iterator['id']) + ">" + "delete" + "</a>"
+        temp += '<br>'
 
     text += temp
 
@@ -189,13 +191,25 @@ def delete_problem(i):
     return render_template("search-problem.html")
 
 
-@app.route('/delete-answer/<i>')
-def delete_answer(i):
+@app.route('/delete-answer/<i>/<j>')
+def delete_answer(i, j):
     a = int(i)
-
+    b = int(j)
     question = db.problems.find({'id': a})
 
-    return "x"
+    for i in question:
+        question = i
+
+    thisAnswer = question['answers']
+
+    thisAnswerArray = []
+    for iterator in thisAnswer:
+        if (iterator['id'] != b):
+            thisAnswerArray.append(iterator)
+
+    db.problems.update({'id': a}, {'$set': {'answers': thisAnswerArray}})
+
+    return "answer deleted"
 
 @app.route('/answer-submit/<i>')
 def answer_sumbit(i):
@@ -206,7 +220,25 @@ def answer_sumbit(i):
     for i in question:
         question = i
 
-    question['answers'].append({'text' : request.values['answer'], 'comments' : [], 'creator': request.cookies['username']})
+
+    for j in question['answers']:
+        lastAnswer = j
+
+    id = lastAnswer['id'] + 1
+
+    # idTemp = db.problems.find().sort([("answers.id", pymongo.ASCENDING)])
+    # for temp in idTemp:
+    #     idTemp = temp['answers']
+    #     break
+    # for i in idTemp:
+    #     idTemp = i['id']
+    #     return str(idTemp)
+    # idTemp += 1
+    # id = idTemp
+
+
+
+    question['answers'].append({'id' : id, 'text' : request.values['answer'], 'comments' : [], 'creator': request.cookies['username']})
 
     db.problems.update({'id': a}, {'$set' : {'answers' : question['answers']}})
 
