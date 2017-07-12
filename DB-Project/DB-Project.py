@@ -268,8 +268,19 @@ def full_problem(i):
 
 @app.route('/all-problem')
 def all_problem():
-    question = db.problems.find({})
+    # question = db.problems.find({'id': 1})
+    question = db.problems.find({"id": { "$gt" : 0}} )
+    # question = db.problems.find({})
 
+    text = ""
+    i = 0
+    text += "<a href=" + "search-problem>" + "go to search page" + "</a><br>"
+    for iterator in question:
+        i += 1
+        text = text + "<a" + " href=/" + "full-problem/" + str(iterator['id']) + ">" + "<p name=" + "\"" + "P" + str(
+            i) + "\"" + ">" + iterator['problem'] + "</p>" + "</a>"
+
+    return text
 
     return render_template('new-problem.html')
 
