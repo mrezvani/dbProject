@@ -72,7 +72,7 @@ def new_problem_search():
 
 
     text = ""
-    text += "<a href=" + "/search-problem>" + "go to search page" + "</a>"
+    text += "<a href=" + "/search-problem>" + "go to search page" + "</a><br>"
     text += "your question is: <br>"
     text += '<p name="problemtitle">' + request.values['problem'] + '</p>'
     text += "<br><br><br>"
@@ -89,8 +89,8 @@ def new_problem_search():
         i += 1
         text +=  "<a" + " href=/" + "full-problem/" + str(iterator['id']) + ">" + "<p name=" + "\"" + "P" + str(i) + "\"" + ">" + iterator['problem'] + "</p>" + "</a>"
     text += """<form action="/new-problem-submit">
-    <input type="hidden" name="problem"  value=%s>
-    <input type="hidden" name="keys"  value=%s>
+    <input  name="problem"  value=%s>
+    <input name="keys"  value=%s>
      <input type="submit" value="No">
      </form>""" % (request.values['problem'],request.values['keys'])
 
@@ -263,18 +263,28 @@ def full_problem(i):
 
     return text
 
-<<<<<<< HEAD
 
 
 @app.route('/all-problem')
 def all_problem():
-    question = db.problems.find({})
+    # question = db.problems.find({'id': 1})
+    question = db.problems.find({"id": { "$gt" : 0}} )
+    # question = db.problems.find({})
 
+    text = ""
+    i = 0
+    text += "<a href=" + "search-problem>" + "go to search page" + "</a><br>"
+    for iterator in question:
+        i += 1
+        text = text + "<a" + " href=/" + "full-problem/" + str(iterator['id']) + ">" + "<p name=" + "\"" + "P" + str(
+            i) + "\"" + ">" + iterator['problem'] + "</p>" + "</a>"
+
+    return text
 
     return render_template('new-problem.html')
 
 
-=======
+# =======
 ##################################################################
 
 @app.route('/edit-answer-comment/<i>/<j>/<k>')
@@ -435,7 +445,7 @@ def dislike_problem(i):
     question = db.problems.update({'id': a}, {'$set': {'likedBy': liked, 'dislikedBy': disliked}})
 
     return redirect(url_for('full_problem', i=i))
->>>>>>> b5447f541a2abcbd6da6335af79801b5d7d8611f
+# >>>>>>> b5447f541a2abcbd6da6335af79801b5d7d8611f
 
 
 @app.route('/delete-problem/<i>')
