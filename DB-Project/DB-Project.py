@@ -67,10 +67,6 @@ def login_submit():
 
 ##################################################################
 
-@app.route('/new-problem')
-def new_problem():
-    return render_template('new-problem.html')
-
 @app.route('/new-problem-search')
 def new_problem_search():
 
@@ -101,6 +97,10 @@ def new_problem_search():
         request.values['problem'], request.values['keys'])
 
     return text
+
+@app.route('/new-problem')
+def new_problem():
+    return render_template('new-problem.html')
 
 
 @app.route('/new-problem-submit')
@@ -264,6 +264,18 @@ def full_problem(i):
 
     return text
 
+<<<<<<< HEAD
+
+
+@app.route('/all-problem')
+def all_problem():
+    question = db.problems.find({})
+
+
+    return render_template('new-problem.html')
+
+
+=======
 ##################################################################
 
 @app.route('/edit-answer-comment/<i>/<j>/<k>')
@@ -424,6 +436,7 @@ def dislike_problem(i):
     question = db.problems.update({'id': a}, {'$set': {'likedBy': liked, 'dislikedBy': disliked}})
 
     return redirect(url_for('full_problem', i=i))
+>>>>>>> b5447f541a2abcbd6da6335af79801b5d7d8611f
 
 
 @app.route('/delete-problem/<i>')
@@ -792,6 +805,6 @@ def comment_sumbit(i):
 if __name__ == '__main__':
     # print(db.problems.ensureIndex())
     app.debug = True
-    # app.run()
-    app.run("0.0.0.0", 5000)
+    app.run()
+    # app.run("0.0.0.0", 5000)
 
