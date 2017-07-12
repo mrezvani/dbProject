@@ -80,7 +80,7 @@ def new_problem_search():
     keywordList = db.problems.find({'$text': {'$search': request.values['keys']}}, {'score' : {'$meta' : 'textScore'}}).sort([('score' , {'$meta' : 'textScore'})])
 
 
-    text += "Did you mean...? <br><br>"
+    text += "<br><br><br>Did you mean...? "
     i=0
 
     for iterator in keywordList:
@@ -264,7 +264,7 @@ def full_problem(i):
 
     return text
 
-
+###############################################################
 
 @app.route('/all-problem')
 def all_problem():
