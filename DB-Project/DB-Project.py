@@ -49,7 +49,7 @@ def sign_up_submit():
 
 @app.route('/login')
 def login():
-    return render_template('login.html', message="Welcome")
+    return render_template('login.html')
 
 @app.route('/login-submit')
 def login_submit():
@@ -76,10 +76,8 @@ def new_problem_search():
 
 
     text = ""
-    text += "<a href=" + "/search-problem>" + "go to search page" + "</a>"
-    text += "your question is: <br>"
-    text += '<p name="problemtitle">' + request.values['problem'] + '</p>'
-    text += "<br><br><br>"
+    text += "<a href=" + "/search-problem>" + "go to search page" + "</a>" + "<br>"
+
 
 
     db.problems.create_index([('keys',pymongo.TEXT)])
@@ -92,18 +90,21 @@ def new_problem_search():
     for iterator in keywordList:
         i += 1
         text +=  "<a" + " href=/" + "full-problem/" + str(iterator['id']) + ">" + "<p name=" + "\"" + "P" + str(i) + "\"" + ">" + iterator['problem'] + "</p>" + "</a>"
-    text += """<form action="/new-problem-submit">
-    <input type="hidden" name="problem"  value=%s>
-    <input type="hidden" name="keys"  value=%s>
-     <input type="submit" value="No">
-     </form>""" % (request.values['problem'],request.values['keys'])
+
+    text += "your question is: <br>"
+
+    text += """<form action="/new-problem-submit"> <textarea readonly rows="5" cols="50" name="problem">%s</textarea>
+                        <br>
+
+                        Keys: <br>
+                        <textarea readonly rows="5" cols="50" name="keys">%s</textarea> <br> <input type="submit" value="No"> </form>""" % (
+        request.values['problem'], request.values['keys'])
 
     return text
 
 
 @app.route('/new-problem-submit')
 def new_problem_submit():
-
     idTemp = db.problems.find().sort([("id", pymongo.ASCENDING)])
     for i in idTemp:
         idTemp = i['id']
